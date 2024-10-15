@@ -1,15 +1,15 @@
 #!/usr/bin/node
 
-const { MongoClient } = require("mongodb");
-const mongodb = require("mongodb");
+const { MongoClient } = require('mongodb');
+const mongodb = require('mongodb');
 
 class DBClient {
   constructor() {
-    const host = process.env.DB_HOST ? process.env.DB_HOST : "localhost";
+    const host = process.env.DB_HOST ? process.env.DB_HOST : 'localhost';
     const port = process.env.DB_PORT ? process.env.DB_PORT : 27017;
     this.database = process.env.DB_DATABASE
       ? process.env.DB_DATABASE
-      : "files_manager";
+      : 'files_manager';
     const dbUrl = `mongodb://${host}:${port}`;
     this.connected = false;
     this.client = new MongoClient(dbUrl, { useUnifiedTopology: true });
@@ -29,7 +29,7 @@ class DBClient {
     await this.client.connect();
     const users = await this.client
       .db(this.database)
-      .collection("users")
+      .collection('users')
       .countDocuments();
     return users;
   }
@@ -38,7 +38,7 @@ class DBClient {
     await this.client.connect();
     const users = await this.client
       .db(this.database)
-      .collection("files")
+      .collection('files')
       .countDocuments();
     return users;
   }

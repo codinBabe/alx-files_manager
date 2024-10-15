@@ -1,7 +1,7 @@
 #!/usr/bin/node
 
-const redisClient = require("../utils/redis");
-const dbClient = require("../utils/db");
+const redisClient = require('../utils/redis');
+const dbClient = require('../utils/db');
 
 class AppController {
   static getStatus(req, res) {
