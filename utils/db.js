@@ -1,6 +1,8 @@
 #!/usr/bin/node
 
 const { MongoClient } = require('mongodb');
+const mongo = require('mongodb');
+const getHash = require('./utils');
 
 class DBClient {
   constructor() {
@@ -40,6 +42,41 @@ class DBClient {
       .collection('files')
       .countDocuments();
     return users;
+  }
+
+  async createUser(email, password) {
+    const securePassword = getHash(password);
+    await this.client.connect();
+    const newUser = await this.client.db(this.database).collection('users').insertOne({ email, password: securePassword });
+    return newUser;
+  }
+
+  async getUser(email) {
+    await this.client.connect();
+    const user = await this.client.db(this.database).collection('users').find({ email }).toArray();
+    if (!user.length) {
+      return null;
+    }
+    return user[0];
+  }
+
+  async getUserById(id) {
+    const _id = new mongo.ObjectID(id);
+    await this.client.connect();
+    const user = await this.client.db(this.database).collection('users').find({ _id }).toArray();
+    if (!user.length) {
+      return null;
+    }
+    return user[0];
+  }
+
+  async findUser(email) {
+    await this.client.connect();
+    const user = await this.client.db(this.database).collection('users').getUser(email);
+    if (user) {
+      return true;
+    }
+    return false;
   }
 }
 

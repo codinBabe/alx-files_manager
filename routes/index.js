@@ -1,11 +1,13 @@
 #!usr/bin/node
 
 const { Router } = require('express');
-const appController = require('../controllers/AppControllers');
+const AppController = require('../controllers/AppController');
+const UsersController = require('../controllers/UserController');
 
 const router = Router();
 
-router.get('/status', appController.getStatus);
-router.get('/stats', appController.getStats);
+router.get('/status', AppController.getStatus);
+router.get('/stats', AppController.getStats);
+router.post('/users', UsersController.postNew);
 
 module.exports = router;
