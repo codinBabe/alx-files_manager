@@ -1,10 +1,14 @@
-import redis from 'redis';
-import { promisify } from 'util';
+#!/usr/bin/node
+
+const redis = require("redis");
+const { promisify } = require("util");
 
 class RedisClient {
   constructor() {
     this.client = redis.createClient();
-    this.client.on('error', (err) => console.log(`Redis client not connected to the server: ${err}`));
+    this.client.on("error", (err) =>
+      console.log(`Redis client not connected to the server: ${err}`)
+    );
   }
 
   isAlive() {
@@ -28,4 +32,5 @@ class RedisClient {
 }
 
 const redisClient = new RedisClient();
-export default redisClient;
+
+module.exports = redisClient;
