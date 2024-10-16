@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
-import mime from 'mime-types';
-import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
+const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
+const { promisify } = require('util');
+const mime = require('mime-types');
+const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
 const writeFileAsync = promisify(fs.writeFile);
 const mkdirAsync = promisify(fs.mkdir);
@@ -199,4 +199,4 @@ class FilesController {
   }
 }
 
-export default FilesController;
+module.exports = FilesController;
