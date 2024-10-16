@@ -1,85 +1,46 @@
-#!/usr/bin/node
-
 const { MongoClient } = require('mongodb');
-const mongo = require('mongodb');
-const getHash = require('./utils');
+
+const HOST = process.env.DB_HOST || 'localhost';
+const PORT = process.env.DB_PORT || 27017;
+const DATABASE = process.env.DB_DATABASE || 'files_manager';
+
+const url = `mongodb://${HOST}:${PORT}`;
 
 class DBClient {
   constructor() {
-    const host = process.env.DB_HOST ? process.env.DB_HOST : 'localhost';
-    const port = process.env.DB_PORT ? process.env.DB_PORT : 27017;
-    this.database = process.env.DB_DATABASE
-      ? process.env.DB_DATABASE
-      : 'files_manager';
-    const dbUrl = `mongodb://${host}:${port}`;
+    this.client = new MongoClient(url, { useUnifiedTopology: true, useNewUrlParser: true });
     this.connected = false;
-    this.client = new MongoClient(dbUrl, { useUnifiedTopology: true });
-    this.client
-      .connect()
-      .then(() => {
-        this.connected = true;
-      })
-      .catch((err) => console.log(err.message));
+    this.client.connect().then(() => {
+      this.db = this.client.db(DATABASE);
+      this.connected = true;
+      console.log('DB client connected to the server');
+    }).catch((err) => {
+      console.error(`DB client not connected to the server: ${err.message}`);
+    });
   }
 
   isAlive() {
-    return this.client.isConnected();
+    return this.connected;
   }
 
   async nbUsers() {
-    await this.client.connect();
-    const users = await this.client
-      .db(this.database)
-      .collection('users')
-      .countDocuments();
-    return users;
+    if (!this.connected) {
+      throw new Error('DB client not connected');
+    }
+    const users = this.db.collection('users');
+    const usersNum = await users.countDocuments();
+    return usersNum;
   }
 
   async nbFiles() {
-    await this.client.connect();
-    const users = await this.client
-      .db(this.database)
-      .collection('files')
-      .countDocuments();
-    return users;
-  }
-
-  async createUser(email, password) {
-    const securePassword = getHash(password);
-    await this.client.connect();
-    const newUser = await this.client.db(this.database).collection('users').insertOne({ email, password: securePassword });
-    return newUser;
-  }
-
-  async getUser(email) {
-    await this.client.connect();
-    const user = await this.client.db(this.database).collection('users').find({ email }).toArray();
-    if (!user.length) {
-      return null;
+    if (!this.connected) {
+      throw new Error('DB client not connected');
     }
-    return user[0];
-  }
-
-  async getUserById(id) {
-    const _id = new mongo.ObjectID(id);
-    await this.client.connect();
-    const user = await this.client.db(this.database).collection('users').find({ _id }).toArray();
-    if (!user.length) {
-      return null;
-    }
-    return user[0];
-  }
-
-  async findUser(email) {
-    await this.client.connect();
-    const user = await this.client.db(this.database).collection('users').getUser(email);
-    if (user) {
-      return true;
-    }
-    return false;
+    const files = this.db.collection('files');
+    const filesNum = await files.countDocuments();
+    return filesNum;
   }
 }
 
 const dbClient = new DBClient();
-
 module.exports = dbClient;
